@@ -1,12 +1,11 @@
 import Head from "next/head";
-import Link from "next/link";
 import { use, useCallback } from "react";
 import { DeleteButton } from "./components/deleteButton";
-import { Todo } from "./types/Todo";
 import { EditButton } from "./components/editButton";
+import { Todo, getTodos } from "./contracts";
 
 const Todos = () => {
-  const todos = use(fetchTodos());
+  const todos = use(getTodos());
 
   const isUpdated = useCallback((todo: Todo) => {
     return todo.createdAt.toISOString() !== todo.updatedAt.toISOString();
@@ -34,7 +33,7 @@ const Todos = () => {
                 )}
               </p>
               <div className="flex w-44 justify-between">
-                <DeleteButton />
+                <DeleteButton todo={todo} />
                 <EditButton todo={todo} />
               </div>
             </div>
@@ -46,32 +45,3 @@ const Todos = () => {
 };
 
 export default Todos;
-
-const fetchTodos = async (): Promise<Todo[]> => {
-  return [
-    {
-      id: 1,
-      title: "title",
-      description: "Description",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
-    {
-      id: 2,
-      title: "title2",
-      description: "Description",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
-    {
-      id: 3,
-      title: "title3",
-      description: "Description",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
-  ];
-};

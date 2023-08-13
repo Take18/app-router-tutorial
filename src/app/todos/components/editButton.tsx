@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Todo } from "../types/Todo";
+import { Todo } from "../contracts";
 
 type Props = {
   todo: Todo;
