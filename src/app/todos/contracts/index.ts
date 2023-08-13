@@ -7,7 +7,9 @@ export type Todo = {
   deletedAt: Date | null;
 };
 
-export const getTodos = async (): Promise<Todo[]> => {
+export const getTodos = async ({}: {
+  signal?: AbortSignal;
+} = {}): Promise<Todo[]> => {
   return [
     {
       id: 1,

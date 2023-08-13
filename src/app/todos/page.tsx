@@ -3,13 +3,11 @@ import { use, useCallback } from "react";
 import { DeleteButton } from "./components/deleteButton";
 import { EditButton } from "./components/editButton";
 import { Todo, getTodos } from "./contracts";
+import { Search } from "./components/searchInput";
+import { TodoList } from "./components/todoList";
 
-const Todos = () => {
-  const todos = use(getTodos());
-
-  const isUpdated = useCallback((todo: Todo) => {
-    return todo.createdAt.toISOString() !== todo.updatedAt.toISOString();
-  }, []);
+const Todos = async () => {
+  const todos = await getTodos();
 
   return (
     <>
@@ -20,25 +18,7 @@ const Todos = () => {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center">
         <h1 className="text-3xl">Todo</h1>
-        <div className="flex w-4/5 flex-col gap-4">
-          {todos.map((todo) => (
-            <div
-              key={todo.id}
-              className="flex w-full items-center justify-between"
-            >
-              <p>
-                {todo.title}
-                {isUpdated(todo) && (
-                  <span className="text-sm text-gray-400">(Edited)</span>
-                )}
-              </p>
-              <div className="flex w-44 justify-between">
-                <DeleteButton todo={todo} />
-                <EditButton todo={todo} />
-              </div>
-            </div>
-          ))}
-        </div>
+        <TodoList todos={todos} />
       </main>
     </>
   );
