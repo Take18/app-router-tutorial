@@ -1,19 +1,6 @@
-import { PrismaClient } from "@prisma/client";
 import NextAuth from "next-auth/next";
-import GoogleProvider from "next-auth/providers/google";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { options } from "@/app/auth/options";
 
-const prisma = new PrismaClient();
-
-const handler = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? "",
-    }),
-  ],
-  adapter: PrismaAdapter(prisma),
-});
+const handler = NextAuth(options);
 
 export { handler as GET, handler as POST };
