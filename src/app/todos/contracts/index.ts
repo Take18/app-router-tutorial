@@ -38,14 +38,17 @@ export const getTodos = async ({}: {
   ];
 };
 
-export const postTodo = async (todo: Todo) => {
+export const postTodo = async (todo: Pick<Todo, "title" | "description">) => {
   return { success: true };
 };
 
-export const putTodo = async (todoId: number, data: Omit<Todo, "id">) => {
+export const putTodo = async (
+  todoId: Todo["id"],
+  data: Pick<Todo, "title" | "description">
+) => {
   return { success: true };
 };
 
-export const deleteTodo = async (todoId: number) => {
+export const deleteTodo = async (todoId: Todo["id"]) => {
   return { success: true };
 };
