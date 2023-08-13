@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth";
-import { options } from "../auth/options";
+import { options } from "../../auth/options";
 import { NextResponse } from "next/server";
 
 export const GET = async () => {
