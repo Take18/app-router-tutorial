@@ -2,9 +2,10 @@ import Head from "next/head";
 import { use, useCallback } from "react";
 import { DeleteButton } from "./components/deleteButton";
 import { EditButton } from "./components/editButton";
-import { Todo, getTodos } from "./contracts";
+import { Todo, getTodos } from "./_contracts";
 import { Search } from "./components/searchInput";
 import { TodoList } from "./components/todoList";
+import { AddTodoForm } from "./components/form";
 
 const Todos = async () => {
   const todos = await getTodos();
@@ -19,6 +20,7 @@ const Todos = async () => {
       <main className="flex min-h-screen flex-col items-center justify-center">
         <h1 className="text-3xl">Todo</h1>
         <TodoList todos={todos} />
+        <AddTodoForm />
       </main>
     </>
   );

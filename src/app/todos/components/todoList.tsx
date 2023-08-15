@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Todo, getTodos } from "../contracts";
+import { Todo, getTodos } from "../_contracts";
 import { DeleteButton } from "./deleteButton";
 import { EditButton } from "./editButton";
 import { Search } from "./searchInput";

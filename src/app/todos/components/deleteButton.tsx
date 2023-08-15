@@ -1,7 +1,7 @@
 "use client";
 
 import { DeleteButton as DButton } from "@/app/common/button/deleteButton";
-import { Todo, deleteTodo } from "../contracts";
+import { Todo, deleteTodo } from "../_contracts";
 import { useRouter } from "next/navigation";
 
 type Props = {
