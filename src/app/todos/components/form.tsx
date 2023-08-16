@@ -2,15 +2,19 @@
 
 import { useForm } from "react-hook-form";
 import { post } from "../_contracts";
+import { useRouter } from "next/navigation";
 
 export const AddTodoForm = () => {
   type AddTodo = Parameters<typeof post.fetch>[0]["input"];
 
   const { register, handleSubmit, reset } = useForm<AddTodo>();
+  const router = useRouter();
 
   const submitForm = async (data: AddTodo) => {
     post.fetch({ input: data, params: {} });
     reset();
+
+    router.refresh();
   };
 
   return (

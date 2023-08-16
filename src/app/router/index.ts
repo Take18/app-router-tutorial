@@ -36,18 +36,59 @@ export const createContract = <
     }) => Promise<z.input<K>>
   ): ((
     request: Request,
-    ctx: { params: PathParams<P> }
+    ctx: { params: Partial<PathParams<P>> }
   ) => Promise<NextResponse>) => {
     return async (request, ctx) => {
-      const body = await request.json();
-      const parsedInput = inputInverse.safeParse(body);
-      if (!parsedInput.success)
-        return NextResponse.json(
-          { message: parsedInput.error.message },
-          { status: 400 }
-        );
+      if (!["GET", "DELETE"].includes(method)) {
+        const body = await request.json();
+        const parsedInput = inputInverse.safeParse(body);
+        if (!parsedInput.success)
+          return NextResponse.json(
+            { message: parsedInput.error.message },
+            { status: 400 }
+          );
 
-      const data = await impl({ ...ctx, input: parsedInput.data, request });
+        const params = { ...ctx.params } as PathParams<P>;
+
+        const data = await impl({
+          params,
+          input: parsedInput.data,
+          request,
+        }).catch((e) => {
+          if (e instanceof NextResponse) return e;
+          return NextResponse.json(
+            { message: "Internal Server Error" },
+            { status: 500 }
+          );
+        });
+
+        if (data instanceof NextResponse) return data;
+
+        const parsedOutput = output.safeParse(data);
+        if (parsedOutput.success) return NextResponse.json(parsedOutput.data);
+        return NextResponse.json(
+          { message: parsedOutput.error.message },
+          { status: 500 }
+        );
+      }
+
+      const { searchParams } = new URL(request.url);
+      const queryParams: Record<string, string> = {};
+      searchParams.forEach((value, key) => {
+        queryParams[key] = value;
+      });
+      const params = { ...ctx.params, ...queryParams } as PathParams<P>;
+
+      const data = await impl({ params, input: {}, request }).catch((e) => {
+        if (e instanceof NextResponse) return e;
+        return NextResponse.json(
+          { message: "Internal Server Error" },
+          { status: 500 }
+        );
+      });
+
+      if (data instanceof NextResponse) return data;
+
       const parsedOutput = output.safeParse(data);
       if (parsedOutput.success) return NextResponse.json(parsedOutput.data);
       return NextResponse.json(
@@ -57,8 +98,16 @@ export const createContract = <
     };
   };
 
-  const createUrl = (path: P, params: Record<string, string>): string =>
-    path.replace(/\[([^\]]+)\]/g, (_, key) => params[key]);
+  const createUrl = (path: P, params: Record<string, string>): string => {
+    const pathnameAndQuery = path.replace(
+      /\[([^\]]+)\]/g,
+      (_, key) => params[key]
+    );
+    const fullpath = `${
+      typeof window === "undefined" ? "http://localhost:3000" : ""
+    }${pathnameAndQuery}`;
+    return fullpath;
+  };
 
   const client = (
     { input: input_, params }: { input: z.input<T>; params: PathParams<P> },
@@ -72,7 +121,9 @@ export const createContract = <
       headers: { "Content-Type": "application/json" },
       ...init,
       method,
-      body: JSON.stringify(parsed.data),
+      ...(["GET", "DELETE"].includes(method)
+        ? {}
+        : { body: JSON.stringify(parsed.data) }),
     })
       .then((res) => res.json())
       .then((res) => {

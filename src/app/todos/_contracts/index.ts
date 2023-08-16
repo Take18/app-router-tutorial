@@ -10,41 +10,6 @@ export type Todo = {
   deletedAt: Date | null;
 };
 
-export const getTodos = async ({}: {
-  signal?: AbortSignal;
-} = {}): Promise<Todo[]> => {
-  return [
-    {
-      id: 1,
-      title: "title",
-      description: "Description",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
-    {
-      id: 2,
-      title: "title2",
-      description: "Description",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
-    {
-      id: 3,
-      title: "title3",
-      description: "Description",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: null,
-    },
-  ];
-};
-
-export const postTodo = async (todo: Pick<Todo, "title" | "description">) => {
-  return { success: true };
-};
-
 export const putTodo = async (
   todoId: Todo["id"],
   data: Pick<Todo, "title" | "description">
@@ -56,23 +21,37 @@ export const deleteTodo = async (todoId: Todo["id"]) => {
   return { success: true };
 };
 
-const todoSchema = z.object({
-  id: z.number(),
-  title: z.string().max(20),
-  description: z.string().max(1024),
-  createdAt: z.date().transform((date) => date.toISOString()),
-  updatedAt: z.date().transform((date) => date.toISOString()),
-  deletedAt: z
-    .date()
-    .nullable()
-    .transform((date) => date?.toISOString() ?? null),
-});
-
 export const get = createContract({
   method: "GET",
-  path: "/todos/api",
+  path: "/todos/api?q=[q]",
   input: z.object({}),
-  output: z.array(todoSchema),
+  inputInverse: z.object({}),
+  output: z.array(
+    z.object({
+      id: z.number(),
+      title: z.string().max(20),
+      description: z.string().max(1024),
+      createdAt: z.date().transform((date) => date.toISOString()),
+      updatedAt: z.date().transform((date) => date.toISOString()),
+      deletedAt: z
+        .date()
+        .nullable()
+        .transform((date) => date?.toISOString() ?? null),
+    })
+  ),
+  outputInverse: z.array(
+    z.object({
+      id: z.number(),
+      title: z.string().max(20),
+      description: z.string().max(1024),
+      createdAt: z.string().transform((date) => new Date(date)),
+      updatedAt: z.string().transform((date) => new Date(date)),
+      deletedAt: z
+        .string()
+        .nullable()
+        .transform((date) => (date == null ? null : new Date(date))),
+    })
+  ),
 });
 
 export const post = createContract({
@@ -82,7 +61,15 @@ export const post = createContract({
     title: z.string().max(20),
     description: z.string().max(1024),
   }),
+  inputInverse: z.object({
+    title: z.string().max(20),
+    description: z.string().max(1024),
+  }),
   output: z.union([
+    z.object({ success: z.literal(true) }),
+    z.object({ success: z.literal(false), message: z.string().optional() }),
+  ]),
+  outputInverse: z.union([
     z.object({ success: z.literal(true) }),
     z.object({ success: z.literal(false), message: z.string().optional() }),
   ]),

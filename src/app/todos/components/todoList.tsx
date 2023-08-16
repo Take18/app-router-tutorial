@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Todo, getTodos } from "../_contracts";
+import { Todo, get } from "../_contracts";
 import { DeleteButton } from "./deleteButton";
 import { EditButton } from "./editButton";
 import { Search } from "./searchInput";
@@ -22,7 +22,11 @@ export const TodoList = ({ todos: givenTodos }: Props) => {
 
   useEffect(() => {
     const abortController = new AbortController();
-    getTodos({ signal: abortController.signal })
+    get
+      .fetch(
+        { input: {}, params: { q: searchQuery } },
+        { signal: abortController.signal }
+      )
       .then((todos) => setTodos(todos))
       .catch((e) => console.error(e));
 

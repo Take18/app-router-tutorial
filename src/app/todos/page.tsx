@@ -1,14 +1,19 @@
 import Head from "next/head";
-import { use, useCallback } from "react";
-import { DeleteButton } from "./components/deleteButton";
-import { EditButton } from "./components/editButton";
-import { Todo, getTodos } from "./_contracts";
-import { Search } from "./components/searchInput";
+import { get } from "./_contracts";
 import { TodoList } from "./components/todoList";
 import { AddTodoForm } from "./components/form";
 
-const Todos = async () => {
-  const todos = await getTodos();
+const Todos = async ({
+  searchParams: { q: query },
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) => {
+  const q = (() => {
+    if (typeof query === "string") return query;
+    if (typeof query === "undefined") return "";
+    return query.join(" ");
+  })();
+  const todos = await get.fetch({ input: {}, params: { q } });
 
   return (
     <>
